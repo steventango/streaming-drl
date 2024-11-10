@@ -1,7 +1,7 @@
 # Streaming Deep Reinforcement Learning
 
 <p align="center">
-  <img src="assets/10sec.gif">
+  <img src="assets/video_grid.gif">
 </p>
 
 This is the official implementation of the <em>[Streaming Deep Reinforcement Learning Finally Works](https://arxiv.org/abs/2410.14606)</em> paper by [Mohamed Elsayed](http://mohmdelsayed.github.io), [Gautham Vasan](https://gauthamvasan.github.io), and [A. Rupam Mahmood](https://armahmood.github.io). We provide a minimal implementation (around 150 lines of code) of stream-x algorithms that allow ease of use and understanding. Specifically, we provide implementations for the following algorithms:
