@@ -12,8 +12,8 @@ This is the official implementation of the <em>[Streaming Deep Reinforcement Lea
 
 
 If you just want to quickly run the code, we provide Google Colab notebooks for:
-- Stream AC(λ) with Ant-v4: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/13lgPs5O6Xqr0GKJuT8amGhXufNcN40qY?usp=sharing)
-- Stream Q(λ) with Atari Pong: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1oM-PPxITvXVfJ_vqipqKE6mYUWHmte9y?usp=sharing)
+- Stream AC(λ) with Ant-v4: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1oM-PPxITvXVfJ_vqipqKE6mYUWHmte9y?usp=sharing)
+- Stream Q(λ) with Atari Pong: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/13lgPs5O6Xqr0GKJuT8amGhXufNcN40qY?usp=sharing)
 
 ## Overview:
 ### What is streaming learning?
