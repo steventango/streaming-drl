@@ -35,18 +35,13 @@ lack of communication access, or concerns about data privacy.
 
 Existing streaming deep RL methods often experience instability and failure to learn, which we
 refer to as stream barrier. This figure shows stream barrier in three different challenging
-benchmarking tasks: MuJoCo, DM Control, and Atari. The performance is shown
-as zero if some of the runs for an algorithm diverged. Classic streaming methods, namely
+benchmarking tasks: MuJoCo, DM Control, and Atari. Classic streaming methods, namely
 Q(λ) and SARSA(λ), AC(λ), perform poorly in these challenging tasks. Similarly, batch RL
 methods such as PPO, SAC, and DQN struggle when used in streaming learning, which is achieved
 with a buffer and a batch size of 1 and dubbed as PPO1, SAC1, and DQN1, respectively. Our stream-x
 methods not only overcome the stream barrier, that is, learn stably and effectively in these
 tasks, but also become competitive with batch RL methods and even outperform in some
-environments. For example, Figure b shows the performance in the Dog environments
-where our stream AC(λ) outperforms both PPO and SAC by large margins, achieving the
-best known performance of any model-free algorithm on this environment. Figure c shows
-the performance in Atari Enduro game where stream Q(λ) outperforms DQN even though
-it uses a fraction of the memory and compute required by DQN.
+environments.
 
 <img src="assets/stream_barrier.png" width="100%" style="max-width: 640px"><br/>
 
