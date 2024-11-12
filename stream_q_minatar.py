@@ -27,10 +27,9 @@ def initialize_weights(m):
         m.bias.data.fill_(0.0)
 
 class StreamQ(nn.Module):
-    def __init__(self, n_channels=4, n_actions=3, hidden_size=128, lr=1.0, epsilon_target=0.01, epsilon_start=1.0, exploration_fraction=0.1, total_steps=1_000_000, gamma=0.99, lamda=0.8, kappa_value=2.0, reset_for_random=False):
+    def __init__(self, n_channels=4, n_actions=3, hidden_size=128, lr=1.0, epsilon_target=0.01, epsilon_start=1.0, exploration_fraction=0.1, total_steps=1_000_000, gamma=0.99, lamda=0.8, kappa_value=2.0):
         super(StreamQ, self).__init__()
         self.n_actions = n_actions
-        self.reset_for_random = reset_for_random
         self.gamma = gamma
         self.epsilon_start = epsilon_start
         self.epsilon_target = epsilon_target
@@ -72,7 +71,7 @@ class StreamQ(nn.Module):
             q_values = self.q(s)
             return torch.argmax(q_values, dim=-1), False
 
-    def update_params(self, s, a, r, s_prime, done, random_action, overshooting_info=False):
+    def update_params(self, s, a, r, s_prime, done, is_nongreedy, overshooting_info=False):
         done_mask = 0 if done else 1
         s, a, r, s_prime, done_mask = torch.tensor(np.array(s), dtype=torch.float), torch.tensor([a], dtype=torch.int).squeeze(0), \
                                          torch.tensor(np.array(r)), torch.tensor(np.array(s_prime), dtype=torch.float), \
@@ -86,7 +85,7 @@ class StreamQ(nn.Module):
         q_output = -q_sa
         self.optimizer.zero_grad()
         q_output.backward()
-        self.optimizer.step(delta.item(), reset=(done or (random_action and self.reset_for_random)))
+        self.optimizer.step(delta.item(), reset=(done or is_nongreedy))
 
         if overshooting_info:
             max_q_s_prime_a_prime = torch.max(self.q(s_prime), dim=-1).values
@@ -95,22 +94,22 @@ class StreamQ(nn.Module):
             if torch.sign(delta_bar * delta).item() == -1:
                 print("Overshooting Detected!")
 
-def main(env_name, seed, lr, gamma, lamda, total_steps, epsilon_target, epsilon_start, exploration_fraction, kappa_value, reset_for_random, debug, overshooting_info, render=False):
+def main(env_name, seed, lr, gamma, lamda, total_steps, epsilon_target, epsilon_start, exploration_fraction, kappa_value, debug, overshooting_info, render=False):
     torch.manual_seed(seed); np.random.seed(seed)
     env = gym.make(env_name, render_mode='human') if render else gym.make(env_name)
     env = gym.wrappers.RecordEpisodeStatistics(env)
     env = NormalizeObservation(env)
     env = ScaleReward(env, gamma=gamma)
-    agent = StreamQ(n_channels=env.observation_space.shape[-1], n_actions=env.action_space.n, lr=lr, gamma=gamma, lamda=lamda, epsilon_target=epsilon_target, epsilon_start=epsilon_start, exploration_fraction=exploration_fraction, total_steps=total_steps, reset_for_random=reset_for_random, kappa_value=kappa_value)
+    agent = StreamQ(n_channels=env.observation_space.shape[-1], n_actions=env.action_space.n, lr=lr, gamma=gamma, lamda=lamda, epsilon_target=epsilon_target, epsilon_start=epsilon_start, exploration_fraction=exploration_fraction, total_steps=total_steps, kappa_value=kappa_value)
     if debug:
         print("seed: {}".format(seed), "env: {}".format(env.spec.id))
     returns, term_time_steps = [], []
     s, _ = env.reset(seed=seed)
     episode_num = 1
     for t in range(1, total_steps+1):
-        a, random_action = agent.sample_action(s)
+        a, is_nongreedy = agent.sample_action(s)
         s_prime, r, terminated, truncated, info = env.step(a)
-        agent.update_params(s, a, r, s_prime, terminated or truncated, random_action, overshooting_info)
+        agent.update_params(s, a, r, s_prime, terminated or truncated, is_nongreedy, overshooting_info)
         s = s_prime
         if terminated or truncated:
             if debug:
@@ -141,7 +140,6 @@ if __name__ == '__main__':
     parser.add_argument('--total_steps', type=int, default=10_000_000)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--overshooting_info', action='store_true')
-    parser.add_argument('--reset_for_random', action='store_true')
     parser.add_argument('--render', action='store_true')
     args = parser.parse_args()
-    main(args.env_name, args.seed, args.lr, args.gamma, args.lamda, args.total_steps, args.epsilon_target, args.epsilon_start, args.exploration_fraction, args.kappa_value, args.reset_for_random, args.debug, args.overshooting_info, args.render)
+    main(args.env_name, args.seed, args.lr, args.gamma, args.lamda, args.total_steps, args.epsilon_target, args.epsilon_start, args.exploration_fraction, args.kappa_value, args.debug, args.overshooting_info, args.render)
