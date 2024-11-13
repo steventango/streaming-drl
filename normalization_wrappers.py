@@ -67,8 +67,8 @@ class ScaleReward(gym.core.Wrapper, gym.utils.RecordConstructorArgs):
         except AttributeError:
             self.num_envs = 1
             self.is_vector_env = False
-        self.trace_stats = SampleMeanStd(shape=())
-        self.trace = np.zeros(self.num_envs)
+        self.reward_stats = SampleMeanStd(shape=())
+        self.reward_trace = np.zeros(self.num_envs)
         self.gamma = gamma
         self.epsilon = epsilon
 
@@ -77,12 +77,12 @@ class ScaleReward(gym.core.Wrapper, gym.utils.RecordConstructorArgs):
         if not self.is_vector_env:
             rews = np.array([rews])
         term = terminateds or truncateds
-        self.trace = self.trace * self.gamma * (1 - term) + rews
+        self.reward_trace = self.reward_trace * self.gamma * (1 - term) + rews
         rews = self.normalize(rews)
         if not self.is_vector_env:
             rews = rews[0]
         return obs, rews, terminateds, truncateds, infos
 
     def normalize(self, rews):
-        self.trace_stats.update(self.trace)
-        return rews / np.sqrt(self.trace_stats.var + self.epsilon)
+        self.reward_stats.update(self.reward_trace)
+        return rews / np.sqrt(self.reward_stats.var + self.epsilon)
